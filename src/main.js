@@ -145,6 +145,13 @@ for (const group of document.querySelectorAll('[data-option]')) {
   });
 }
 $('start').addEventListener('click', () => startMatch());
+// Hold the first throw-off for a moment while the player models download.
+$('start').disabled = true;
+$('start').textContent = 'Loading players\u2026';
+view.ready.then(() => {
+  $('start').disabled = false;
+  $('start').textContent = 'Throw off';
+});
 $('resume').addEventListener('click', () => setPaused(false));
 $('quit').addEventListener('click', showMenu);
 $('again').addEventListener('click', () => startMatch());
@@ -155,7 +162,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Escape' || e.code === 'KeyP') setPaused(!paused);
   else if (e.code === 'KeyC' && state) hud.banner(`Camera: ${view.nextCamera()}`, 0.9);
   else if (e.code === 'KeyM') hud.banner(audio.toggleMute() ? 'Sound off' : 'Sound on', 0.9);
-  else if (e.code === 'Enter' && !$('menu').hidden) startMatch();
+  else if (e.code === 'Enter' && !$('menu').hidden && !$('start').disabled) startMatch();
 });
 $('tPause').addEventListener('click', () => setPaused(true));
 $('tCam').addEventListener('click', () => state && hud.banner(`Camera: ${view.nextCamera()}`, 0.9));

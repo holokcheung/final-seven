@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { HALF_L, HALF_W, GOAL_HALF, GOAL_H, clamp } from '../sim/core.js';
 import { COURT_MARGIN, makeCourtTexture, makeCrowdTexture, makeBoardTexture, makeNetTexture } from './textures.js';
 import { buildFigure, animateFigure, gripPosition } from './figure.js';
+import { loadPlayerAssets, buildModelFigure, animateModelFigure, modelGrip } from './model-figure.js';
 
 const CAMERAS = ['broadcast', 'end', 'top'];
 
@@ -96,7 +97,7 @@ export function createView(canvas, teams) {
   const phone = window.matchMedia('(pointer: coarse)').matches;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x07111c);
@@ -115,7 +116,11 @@ export function createView(canvas, teams) {
   buildArena(scene, teams);
   scene.add(buildGoal(-1), buildGoal(1));
 
-  const figures = [];
+  // Players start as simple figures drawn in code, and are swapped for the real
+  // 3D model as soon as its files have loaded. If they never load, the simple ones stay.
+  let figures = [];
+  let animate = animateFigure;
+  let grip = gripPosition;
   teams.forEach((team) => {
     for (const pl of team.players) {
       const f = buildFigure(team, pl);
@@ -135,6 +140,25 @@ export function createView(canvas, teams) {
   const passRing = new THREE.Mesh(new THREE.RingGeometry(0.5, 0.58, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthWrite: false }));
   passRing.rotation.x = -Math.PI / 2;
   scene.add(passRing);
+
+  const ready = loadPlayerAssets(import.meta.env.BASE_URL)
+    .then((assets) => {
+      const models = [];
+      for (const team of teams) for (const pl of team.players) models.push(buildModelFigure(team, pl, assets));
+      for (const f of figures) scene.remove(f.root);
+      for (const f of models) {
+        f.root.visible = false;
+        scene.add(f.root);
+      }
+      figures = models;
+      animate = animateModelFigure;
+      grip = modelGrip;
+      return true;
+    })
+    .catch((err) => {
+      console.warn('Player model did not load; staying with the simple figures.', err);
+      return false;
+    });
 
   const spinAxis = new THREE.Vector3();
   let closeUp = null; // { from: [x, y, z], at: [x, y, z] } pins the camera, for replays and checking animation
@@ -206,13 +230,15 @@ export function createView(canvas, teams) {
       ball.position.set(p.x + Math.cos(p.face) * 0.4 - Math.sin(p.face) * 0.32, y, p.z + Math.sin(p.face) * 0.4 + Math.cos(p.face) * 0.32);
     } else {
       // Otherwise it is in the throwing hand, wherever the arm has taken it.
-      ball.position.copy(gripPosition(figures[p.id]));
+      ball.position.copy(grip(figures[p.id]));
     }
   }
 
   return {
     /** Ground direction that "up" on the keyboard should move you, for the current camera. */
     forward: () => forward,
+    /** Resolves true once the 3D player models are in, false if they could not be loaded. */
+    ready,
     cameraName: () => CAMERAS[mode],
     /** Pin the camera somewhere (or pass null to hand it back to the normal cameras). */
     setCloseUp(shot) {
@@ -230,7 +256,7 @@ export function createView(canvas, teams) {
       ring.visible = playing && state.ctrl != null;
       passRing.visible = playing && state.passTarget != null && state.phase === 'play';
       if (playing) {
-        for (const p of state.players) animateFigure(figures[p.id], p, state, dt);
+        for (const p of state.players) animate(figures[p.id], p, state, dt);
         poseBall(state, dt);
         if (state.ctrl != null) {
           const p = state.players[state.ctrl];

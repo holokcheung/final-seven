@@ -4,7 +4,7 @@ A 3D handball game you play in the browser. One match: **Denmark v France, the 2
 
 **[▶ Play it now: holokcheung.com/final-seven](https://holokcheung.com/final-seven/)** — nothing to install. Play with a keyboard, or with the on-screen controls on a phone or tablet (hold a phone sideways).
 
-Built with [Three.js](https://threejs.org) and [Vite](https://vite.dev). No image or sound files: the court, the crowd and every sound are generated in code.
+Built with [Three.js](https://threejs.org) and [Vite](https://vite.dev). The court, the crowd and every sound are generated in code. The players are a public-domain 3D model with recorded animation.
 
 ## Run it
 
@@ -65,13 +65,15 @@ src/
     match.js    state, rules, ball physics, player control
     ai.js       team shape and what a computer-controlled ball carrier does
   render/     the 3D view: arena, ball, cameras, canvas-painted textures
-    figure.js   the jointed player figure and its animation (poses blended in code, no animation files)
+    model-figure.js   the 3D player model: loads it, paints the kit on, blends the animation clips
+    figure.js         simple code-drawn figure, used until the model has loaded or if it cannot
   ui/hud.js   scoreboard, radar, step and time indicators
   data/teams.js   kits, shirt numbers, ratings
   input.js    keyboard and on-screen touch controls
   audio.js    synthesised crowd, whistle and ball sounds
   main.js     menu and game loop
 scripts/simtest.mjs   headless rule check, run by `npm test`
+public/models/human/  the player model and its animation clips (CC0)
 ```
 
 The simulation runs at 120 steps a second and is seeded, so a test match plays out the same way every time. To change how the game plays, the numbers at the top of `src/sim/match.js` (speeds, keeper reach, block chance, power shot cost) are the place to start; run `npm test` afterwards to see what it did to scoring.
@@ -92,8 +94,10 @@ This is a fan project with no connection to the players, the federations or the 
 4. Shot types: bounce shot, lob, spin shot from the wing; a diving goalkeeper.
 5. Smarter attack: crossing runs, pivot screens, fast breaks; 5-1 and 3-2-1 defences.
 6. Extra time and a penalty shoot-out when the final is level.
-7. Skinned character models and motion-captured animation in place of the code-driven figures.
+7. Handball-specific animation: a proper jump shot, a diving keeper, a two-handed catch.
 
 ## Credits
 
-Written from scratch. Ideas on structure came from reading open-source browser sports games on GitHub: keeping the simulation separate from rendering so it can be tested, a single data file for teams, sound generated in code, and Mat Buckland's "Simple Soccer" approach to team AI. No code or assets were copied from them.
+The player model and its animation clips (run, sprint, shuffle, overhand throw, guard, victory and others) come from the [Mesh2Motion](https://github.com/Mesh2Motion/mesh2motion-app) project, which releases its models, rigs and animations under CC0 (public domain). The kit colours are painted on in code.
+
+The game code is written from scratch. Ideas on structure came from reading open-source browser sports games on GitHub: keeping the simulation separate from rendering so it can be tested, a single data file for teams, sound generated in code, and Mat Buckland's "Simple Soccer" approach to team AI. No code or assets were copied from them.
