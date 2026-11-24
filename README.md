@@ -2,6 +2,8 @@
 
 A 3D handball game you play in the browser. One match: **Denmark v France, the 2016 men's final**. Pick a side and see if you can change the result (the real one finished Denmark 28 – 26 France).
 
+**[▶ Play it now: holokcheung.com/final-seven](https://holokcheung.com/final-seven/)** — nothing to install. It needs a keyboard for now; touch controls are next on the roadmap.
+
 Built with [Three.js](https://threejs.org) and [Vite](https://vite.dev). No image or sound files: the court, the crowd and every sound are generated in code.
 
 ## Run it
