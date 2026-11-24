@@ -10,7 +10,7 @@ export function createHud(teams) {
     hud: $('hud'), scoreA: $('scoreA'), scoreB: $('scoreB'), clock: $('clock'), half: $('half'),
     banner: $('banner'), power: $('power'), powerFill: $('power').firstElementChild,
     stamina: $('stamina').firstElementChild, radar: $('radar'), note: $('note'),
-    carry: $('carry'), pips: [...$('pips').children], hold: $('hold').firstElementChild, carryText: $('carryText'),
+    carry: $('carry'), pips: [...$('pips').children], hold: $('hold').firstElementChild, carryText: $('carryText'), who: $('who'),
   };
   $('codeA').textContent = teams[0].code;
   $('codeB').textContent = teams[1].code;
@@ -117,6 +117,7 @@ export function createHud(teams) {
       set(el.clock, 'c', clockText(state));
       set(el.half, 'h', state.phase === 'fulltime' ? 'FT' : state.half === 1 ? '1st' : '2nd');
 
+      const touch = document.body.classList.contains('touch');
       const charging = state.charge > 0;
       el.power.classList.toggle('on', charging);
       el.power.classList.toggle('big', charging && state.power);
@@ -126,6 +127,7 @@ export function createHud(teams) {
         el.powerFill.classList.toggle('hot', state.charge > 0.93);
       }
       const me = state.ctrl != null ? state.players[state.ctrl] : null;
+      set(el.who, 'who', me ? `${me.num}  ${me.name}` : '');
       el.stamina.style.width = (me ? Math.round(me.stam * 100) : 100) + '%';
 
       // Carrying rules for the player on the ball: steps left, seconds left, dribble.
@@ -139,16 +141,18 @@ export function createHud(teams) {
         const time = me.dribbling ? 1 : Math.max(0, 1 - me.holdT / HOLD_LIMIT);
         el.hold.style.width = Math.round(time * 100) + '%';
         el.hold.classList.toggle('low', time < 0.34);
-        set(el.carryText, 'ct', me.dribbling ? 'Dribbling' : me.dribbled ? 'Dribble used' : 'Shift: dribble');
+        set(el.carryText, 'ct', me.dribbling ? 'Dribbling' : me.dribbled ? 'Dribble used' : touch ? 'Run: dribble' : 'Shift: dribble');
       }
 
       // Tell the player what the buttons do right now.
       let note = '';
+      const defending = !!me && !me.hasBall && state.possTeam !== state.humanTeam;
+      document.body.dataset.mode = defending ? 'defend' : 'attack'; // relabels the touch buttons
       if (me && state.phase === 'play') {
         if (state.possTeam === state.humanTeam && state.possT > 30) note = 'Passive play warning: shoot soon!';
         else if (state.power) note = 'POWER SHOT: push towards a post to aim, let go to throw';
-        else if (planted) note = 'Three steps used: pass (K) or shoot (Space)';
-        else if (!me.hasBall && state.possTeam !== state.humanTeam) note = 'Defending: stand in the shooting lane, K or Space to steal, L to switch';
+        else if (planted) note = touch ? 'Three steps used: pass or shoot' : 'Three steps used: pass (K) or shoot (Space)';
+        else if (defending) note = touch ? 'Defending: get in the shooting lane and hold Block. Steal takes the ball, Switch changes player' : 'Defending: get in the shooting lane and hold Space to block. K steals, L switches player';
       }
       set(el.note, 'n', note);
       drawRadar(state);

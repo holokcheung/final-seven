@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { HALF_L, HALF_W, GOAL_HALF, GOAL_H, clamp } from '../sim/core.js';
 import { COURT_MARGIN, makeCourtTexture, makeCrowdTexture, makeBoardTexture, makeNetTexture, makeNumberTexture } from './textures.js';
 
-const SKIN = ['#f0cba8', '#e2b48c', '#c98f63', '#8d5a3b'];
+const FIGURE = '#d9dde4'; // players are plain mannequins: a shirt, a number, no likeness
 const CAMERAS = ['broadcast', 'end', 'top'];
 
 function buildArena(scene, teams) {
@@ -95,7 +95,7 @@ function buildPlayer(team, pl, index) {
   const keeper = pl.pos === 'GK';
   const shirt = new THREE.MeshStandardMaterial({ color: keeper ? team.keeper : team.shirt, roughness: 0.7 });
   const shorts = new THREE.MeshStandardMaterial({ color: keeper ? team.keeper : team.shorts, roughness: 0.7 });
-  const skin = new THREE.MeshStandardMaterial({ color: SKIN[(index * 3 + pl.num) % SKIN.length], roughness: 0.8 });
+  const skin = new THREE.MeshStandardMaterial({ color: FIGURE, roughness: 0.8 });
   const root = new THREE.Group();
   const body = new THREE.Group();
   root.add(body);
@@ -132,7 +132,9 @@ function buildPlayer(team, pl, index) {
 
 export function createView(canvas, teams) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // Phones have dense screens and small GPUs: render a little softer there.
+  const phone = window.matchMedia('(pointer: coarse)').matches;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -145,7 +147,7 @@ export function createView(canvas, teams) {
   const sun = new THREE.DirectionalLight(0xffffff, 2.2);
   sun.position.set(-8, 30, 14);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(phone ? 1024 : 2048, phone ? 1024 : 2048);
   Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 16, bottom: -16, near: 5, far: 70 });
   sun.shadow.bias = -0.0004;
   scene.add(sun);
@@ -170,6 +172,9 @@ export function createView(canvas, teams) {
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.46, 0.6, 32), new THREE.MeshBasicMaterial({ color: 0xffe14a, transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthWrite: false }));
   ring.rotation.x = -Math.PI / 2;
   scene.add(ring);
+  const passRing = new THREE.Mesh(new THREE.RingGeometry(0.5, 0.58, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthWrite: false }));
+  passRing.rotation.x = -Math.PI / 2;
+  scene.add(passRing);
 
   let mode = 0;
   const focus = new THREE.Vector3();
@@ -238,6 +243,11 @@ export function createView(canvas, teams) {
       const charging = p.id === state.ctrl && state.charge > 0;
       if (p.throwT > 0 || charging) {
         f.armR.rotation.set(0, 0, 2.7); // throwing arm cocked overhead
+      } else if (p.blocking) {
+        // Both arms straight up, on the toes, to block.
+        f.armL.rotation.set(0.25, 0, 3.05);
+        f.armR.rotation.set(-0.25, 0, 3.05);
+        f.root.position.y = Math.max(f.root.position.y, 0.16);
       } else if (p.team === celebrating) {
         f.armL.rotation.set(0, 0, 2.9);
         f.armR.rotation.set(0, 0, 2.9);
@@ -292,6 +302,7 @@ export function createView(canvas, teams) {
       for (const f of figures) f.root.visible = playing;
       ball.visible = playing;
       ring.visible = playing && state.ctrl != null;
+      passRing.visible = playing && state.passTarget != null && state.phase === 'play';
       if (playing) {
         poseFigures(state, dt);
         poseBall(state);
@@ -299,6 +310,10 @@ export function createView(canvas, teams) {
           const p = state.players[state.ctrl];
           ring.position.set(p.x, 0.04, p.z);
           ring.scale.setScalar(1 + Math.sin(state.time * 6) * 0.06);
+        }
+        if (passRing.visible) {
+          const t = state.players[state.passTarget];
+          passRing.position.set(t.x, 0.04, t.z);
         }
       }
       renderer.render(scene, camera);

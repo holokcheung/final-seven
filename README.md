@@ -2,7 +2,7 @@
 
 A 3D handball game you play in the browser. One match: **Denmark v France, the 2016 men's final**. Pick a side and see if you can change the result (the real one finished Denmark 28 – 26 France).
 
-**[▶ Play it now: holokcheung.com/final-seven](https://holokcheung.com/final-seven/)** — nothing to install. It needs a keyboard for now; touch controls are next on the roadmap.
+**[▶ Play it now: holokcheung.com/final-seven](https://holokcheung.com/final-seven/)** — nothing to install. Play with a keyboard, or with the on-screen controls on a phone or tablet (hold a phone sideways).
 
 Built with [Three.js](https://threejs.org) and [Vite](https://vite.dev). No image or sound files: the court, the crowd and every sound are generated in code.
 
@@ -30,17 +30,19 @@ Add `?quick` to the address to skip the menu, or `?demo` to watch the computer p
 
 ## Controls
 
-| Key | With the ball | Without the ball |
+| Action | Keyboard | Touch |
 | --- | --- | --- |
-| `W` `A` `S` `D` / arrows | Move (three steps) | Move |
-| `K` | Pass towards the direction you are pushing | Try to steal |
-| `Space` or `J` | Hold to charge a shot, release to throw. Push towards a post to aim | Try to steal |
-| `Shift` + `Space` | **Power shot**: slow motion while you aim, then a much harder throw for long range. Costs stamina | |
-| `Shift` | Dribble (once per catch) | Sprint |
-| `L` | | Switch to the defender nearest the ball |
-| `C` / `M` / `P` | Change camera / mute / pause | |
+| Move | `W` `A` `S` `D` or arrows | Left thumb: a stick appears where you touch |
+| Pass, towards the way you are pushing | `K` | **Pass** |
+| Shoot: hold to charge, release to throw. Push towards a post to aim | `Space` or `J` | **Shoot** |
+| Power shot: slow motion while you aim, then a much harder throw for long range. Costs stamina | `Shift` + `Space` | **Power** |
+| Sprint. With the ball: dribble, once per catch | `Shift` | **Run** |
+| Defending: try to steal | `K` | **Steal** |
+| Defending: arms up to block a shot (hold) | `Space` or `J` | **Block** |
+| Defending: switch to the player nearest the ball | `L` | **Switch** |
+| Camera / mute / pause | `C` / `M` / `P` | **Cam**, **II** |
 
-The radar at the bottom shows all fourteen players. The ring is you.
+The radar shows all fourteen players. The yellow ring is you; the white ring is the team-mate your pass would go to.
 
 ## The handball in it
 
@@ -48,7 +50,7 @@ The radar at the bottom shows all fourteen players. The ring is you.
 - **One dribble.** `Shift` bounces the ball so you can run. You get one per catch; picking the ball up again gives three fresh steps. A bouncing ball is easy to steal, so it is for open court, not for breaking down a set defence.
 - **Pass to move it.** Attacks are built by moving the ball round the back court (wing, back, centre, back, wing) until a shooting lane opens. The computer plays the same way, about six passes for every shot.
 - **The goal area.** Only the goalkeeper may stand inside the 6 m line.
-- **Defending is positioning.** A defender standing in the shooting lane gets a chance to block. The computer defends 6-0, with the nearest player stepping out to the ball.
+- **Defending is positioning.** A defender standing in the shooting lane has an even chance of blocking the shot; holding Block (arms up) makes that about nine in ten, but you can only shuffle while you do it. The computer defends 6-0, with the nearest player stepping out to the ball.
 - **Passive play.** A team that keeps the ball too long without shooting loses it.
 - **Two halves, change of ends**, throw-off after every goal, throw-ins and goalkeeper throws.
 
@@ -65,7 +67,7 @@ src/
   render/     the 3D view: arena, players, ball, cameras, canvas-painted textures
   ui/hud.js   scoreboard, radar, step and time indicators
   data/teams.js   kits, shirt numbers, ratings
-  input.js    keyboard
+  input.js    keyboard and on-screen touch controls
   audio.js    synthesised crowd, whistle and ball sounds
   main.js     menu and game loop
 scripts/simtest.mjs   headless rule check, run by `npm test`
@@ -75,12 +77,16 @@ The simulation runs at 120 steps a second and is seeded, so a test match plays o
 
 ## Names and branding
 
-The teams are the two countries that played the final, with their colours. Players are **shirt numbers and positions only**. Real athletes' names and likenesses, and the Olympic rings and logos, are deliberately not used: they belong to other people, and a public game needs permission to use them. If you want names on your own copy, add a `name` to each player in `src/data/teams.js`.
+- **Names and shirt numbers are real.** They come from each country's 2016 Olympic squad list on Wikipedia. One player was picked per position; it is not a record of who started the final, and the ratings are made up for the game.
+- **Faces are not.** Every player is the same plain figure in a team shirt. Photos and match footage belong to the photographers and broadcasters, and a player's likeness belongs to the player, so none of it is used.
+- **No Olympic rings or logos**, for the same reason.
+
+This is a fan project with no connection to the players, the federations or the Olympic movement. To change or remove names, edit `src/data/teams.js`.
 
 ## Roadmap
 
 1. **Now:** one full match, both teams playable, three difficulties, three cameras.
-2. Touch controls (virtual stick and buttons) and gamepad support.
+2. Gamepad support; swipe on the Shoot button to pick a shot type.
 3. Fouls, free throws at the 9 m line, 7 m penalties and two-minute suspensions.
 4. Shot types: bounce shot, lob, spin shot from the wing; a diving goalkeeper.
 5. Smarter attack: crossing runs, pivot screens, fast breaks; 5-1 and 3-2-1 defences.

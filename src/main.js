@@ -20,7 +20,12 @@ const LENGTHS = { quick: 120, standard: 300, full: 600 }; // real seconds per ha
 
 const view = createView($('game'), TEAMS);
 const hud = createHud(TEAMS);
-const input = createInput();
+const input = createInput({
+  zone: $('stickZone'),
+  base: $('stickBase'),
+  knob: $('stickKnob'),
+  buttons: [...document.querySelectorAll('[data-touch]')],
+});
 const audio = createAudio();
 
 const choice = { team: 0, diff: 1, len: 'standard' };
@@ -47,7 +52,7 @@ function startMatch(humanTeam = choice.team) {
   hud.show(true);
   audio.start();
   hud.banner(`${TEAMS[0].name} v ${TEAMS[1].name}`, 1.4);
-  if (params.has('debug')) window.__game = { state, view, hud, step };
+  if (params.has('debug')) window.__game = { state, view, hud, input, step };
 }
 
 function showMenu() {
@@ -73,7 +78,7 @@ function showFullTime() {
   $('endScore').textContent = `${TEAMS[0].name} ${a} – ${b} ${TEAMS[1].name}`;
   $('endReal').textContent = `The real final, ${REAL_FINAL.date} in ${REAL_FINAL.place}: ${TEAMS[0].name} ${REAL_FINAL.score[0]} – ${REAL_FINAL.score[1]} ${TEAMS[1].name}.`;
   const st = state.stats;
-  $('endStats').innerHTML = [['Passes', st.passes], ['Shots', st.shots], ['Saves', st.saves], ['Steals', st.steals]]
+  $('endStats').innerHTML = [['Passes', st.passes], ['Shots', st.shots], ['Saves', st.saves], ['Blocks', st.blocks], ['Steals', st.steals]]
     .map(([label, v]) => `<tr><td>${v[0]}</td><th>${label}</th><td>${v[1]}</td></tr>`)
     .join('');
   $('end').hidden = false;
@@ -92,7 +97,7 @@ function onEvent(e) {
     case 'steal': hud.banner(e.team === state.humanTeam ? 'Stolen!' : 'Ball lost!', 0.9); break;
     case 'passive': hud.banner('Passive play', 1.3); break;
     case 'held': hud.banner('Three seconds!', 1.3); break;
-    case 'goal': audio.goal(); audio.whistle(); hud.banner(`GOAL!  ${TEAMS[e.team].name}`, 2.3, 'goal'); break;
+    case 'goal': audio.goal(); audio.whistle(); hud.banner(`GOAL!  ${e.scorer >= 0 ? state.players[e.scorer].name : TEAMS[e.team].name}`, 2.3, 'goal'); break;
     case 'halftime': audio.whistle(2); hud.banner('Half-time – change ends', 2.6); break;
     case 'fulltime': audio.whistle(3); showFullTime(); break;
   }
@@ -152,6 +157,18 @@ window.addEventListener('keydown', (e) => {
   else if (e.code === 'KeyM') hud.banner(audio.toggleMute() ? 'Sound off' : 'Sound on', 0.9);
   else if (e.code === 'Enter' && !$('menu').hidden) startMatch();
 });
+$('tPause').addEventListener('click', () => setPaused(true));
+$('tCam').addEventListener('click', () => state && hud.banner(`Camera: ${view.nextCamera()}`, 0.9));
+
+// Touch devices get the on-screen stick and buttons: phones and tablets straight
+// away, anything else the first time its screen is actually touched. ?touch forces it.
+const useTouch = () => document.body.classList.add('touch');
+if (params.has('touch') || window.matchMedia('(hover: none) and (pointer: coarse)').matches) useTouch();
+window.addEventListener('pointerdown', (e) => e.pointerType === 'touch' && useTouch(), { passive: true });
+// The match waits while a phone is held upright (the "turn your phone" notice is showing).
+const upright = window.matchMedia('(orientation: portrait) and (max-width: 600px)');
+upright.addEventListener('change', () => upright.matches && document.body.classList.contains('touch') && setPaused(true));
+
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && !params.has('debug')) setPaused(true);
 });

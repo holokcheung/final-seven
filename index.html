@@ -2,9 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="Final Seven: a 3D browser handball game. Denmark v France, the 2016 men's final." />
     <title>Final Seven – Denmark v France</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#06101c" />
   </head>
   <body>
     <canvas id="game"></canvas>
@@ -20,6 +22,7 @@
       <div id="banner"></div>
       <div id="note"></div>
       <div id="bottom">
+        <div id="who"></div>
         <div id="carry">
           <span id="pips" title="Steps left"><i></i><i></i><i></i></span>
           <span id="hold" title="Seconds left"><i></i></span>
@@ -31,11 +34,30 @@
         </div>
         <canvas id="radar" width="264" height="144"></canvas>
         <div id="keys">
-          <span><kbd>WASD</kbd> move</span><span><kbd>K</kbd> pass</span><span><kbd>Shift</kbd> sprint / dribble</span>
-          <span><kbd>Space</kbd> shoot (hold)</span><span><kbd>Shift</kbd>+<kbd>Space</kbd> power shot</span><span><kbd>L</kbd> switch</span><span><kbd>C</kbd> camera</span><span><kbd>P</kbd> pause</span>
+          <span><kbd>WASD</kbd> move</span><span><kbd>K</kbd> pass / steal</span><span><kbd>Shift</kbd> sprint / dribble</span>
+          <span><kbd>Space</kbd> shoot / block (hold)</span><span><kbd>Shift</kbd>+<kbd>Space</kbd> power shot</span><span><kbd>L</kbd> switch</span><span><kbd>C</kbd> camera</span><span><kbd>P</kbd> pause</span>
+        </div>
+      </div>
+
+      <!-- On-screen controls, shown on touch devices only (see body.touch in style.css) -->
+      <div id="touch">
+        <div id="stickZone"></div>
+        <div id="stickBase"><div id="stickKnob"></div></div>
+        <div id="pad">
+          <button data-touch="switch" class="tb switch">Switch</button>
+          <button data-touch="run" class="tb run">Run</button>
+          <button data-touch="power" class="tb power">Power</button>
+          <button data-touch="pass" class="tb pass"><span class="att">Pass</span><span class="def">Steal</span></button>
+          <button data-touch="shoot" class="tb shoot"><span class="att">Shoot</span><span class="def">Block</span></button>
+        </div>
+        <div id="touchTop">
+          <button id="tPause" aria-label="Pause">II</button>
+          <button id="tCam" aria-label="Change camera">Cam</button>
         </div>
       </div>
     </div>
+
+    <div id="rotate"><p><b>Turn your phone sideways</b>Final Seven plays in landscape.</p></div>
 
     <div id="menu" class="overlay">
       <div class="card">
@@ -59,8 +81,9 @@
           <button value="full">Full final<small>2 × 10 min</small></button>
         </div>
         <button id="start" class="primary">Throw off</button>
-        <p class="keys"><kbd>WASD</kbd> move · <kbd>K</kbd> pass · hold <kbd>Space</kbd> to shoot · <kbd>L</kbd> switch player</p>
-        <p class="rules">Handball rules: with the ball you get <b>3 steps</b> and <b>3 seconds</b>, and <b>one dribble</b> (<kbd>Shift</kbd>). Pass to move it.<br /><kbd>Shift</kbd>+<kbd>Space</kbd> together: slow-motion <b>power shot</b> for long range.</p>
+        <p class="keys key-only"><kbd>WASD</kbd> move · <kbd>K</kbd> pass · hold <kbd>Space</kbd> to shoot · <kbd>L</kbd> switch player</p>
+        <p class="rules key-only">Handball rules: with the ball you get <b>3 steps</b> and <b>3 seconds</b>, and <b>one dribble</b> (<kbd>Shift</kbd>). Pass to move it.<br /><kbd>Shift</kbd>+<kbd>Space</kbd> together: slow-motion <b>power shot</b> for long range.</p>
+        <p class="rules touch-only">Left thumb moves. <b>Pass</b>, hold <b>Shoot</b>, hold <b>Power</b> for a slow-motion long shot.<br />With the ball you get <b>3 steps</b> and <b>3 seconds</b>; hold <b>Run</b> for your <b>one dribble</b>.</p>
       </div>
     </div>
 

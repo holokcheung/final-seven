@@ -52,7 +52,8 @@ export function createMatch({ teams, seed = 1, humanTeam = 0, difficulty = 1, ha
     nextThrow: 0,
     lastGoal: -1,
     events: [],
-    stats: { shots: [0, 0], saves: [0, 0], steals: [0, 0], passes: [0, 0] },
+    stats: { shots: [0, 0], saves: [0, 0], steals: [0, 0], passes: [0, 0], blocks: [0, 0] },
+    passTarget: null, // who the human's pass would go to right now (drawn as a marker)
     teams: teams.map((t, i) => ({ code: t.code, name: t.name, dir: i === 0 ? 1 : -1, gk: -1 })),
     players: [],
     ball: { x: 0, y: 1.2, z: 0, vx: 0, vy: 0, vz: 0, holder: null, kind: 'loose', by: -1, byTeam: 0, target: null, noCatchId: -1, noCatchT: 0, protectT: 0, idleT: 0, tried: 0 },
@@ -67,6 +68,7 @@ export function createMatch({ teams, seed = 1, humanTeam = 0, difficulty = 1, ha
         x: 0, z: 0, vx: 0, vz: 0, face: 0,
         hasBall: false, holdT: 0, minHold: 0.6, driveSide: 1, lastPasser: -1,
         steps: 0, dribbling: false, dribbled: false, // carrying rules, see core.js
+        blocking: false, // arms up to block a shot (human defender holding Shoot)
         stun: 0, throwT: 0, jumpT: 0, aiT: 0, react: 0, cool: 0, stam: 1, sprinting: false,
       });
       if (pl.pos === 'GK') s.teams[ti].gk = id;
@@ -410,8 +412,11 @@ function humanControl(s, p, input, dt) {
     }
   } else {
     s.charge = 0;
-    // No ball: Pass/Shoot become a steal attempt on a carrier within reach.
-    if ((input.passP || input.shootP) && p.cool <= 0) {
+    // Defending. Holding Shoot puts the arms up: a shot through you is far more
+    // likely to be blocked, but you can only shuffle while you do it.
+    p.blocking = input.shootHeld && s.possTeam !== p.team;
+    // Pass is a steal attempt on a carrier within reach.
+    if (input.passP && p.cool <= 0) {
       p.cool = 0.9;
       const holder = b.holder != null ? s.players[b.holder] : null;
       if (holder && holder.team !== p.team && holder.role !== 'GK' && b.protectT <= 0 && Math.hypot(holder.x - p.x, holder.z - p.z) < 1.25) {
@@ -420,7 +425,11 @@ function humanControl(s, p, input, dt) {
       }
     }
   }
-  return { mx, mz, speed: (p.dribbling ? DRIBBLE : p.sprinting ? SPRINT : RUN) * p.spd };
+  if (p.hasBall) {
+    p.blocking = false;
+    s.passTarget = pickPassTarget(s, p, active ? mx : Math.cos(p.face), active ? mz : Math.sin(p.face))?.id ?? null;
+  }
+  return { mx, mz, speed: (p.blocking ? RUN * 0.55 : p.dribbling ? DRIBBLE : p.sprinting ? SPRINT : RUN) * p.spd };
 }
 
 // ------------------------------------------------------------------ movement
@@ -620,10 +629,12 @@ function updateBall(s, dt) {
           }
           return;
         }
-      } else if (d < 0.45 && b.y < 2.15 && !(b.tried & (1 << p.id))) {
-        // A defender in the shooting lane gets one go at the block.
+      } else if (d < (p.blocking ? 0.8 : 0.45) && b.y < (p.blocking ? 2.7 : 2.15) && !(b.tried & (1 << p.id))) {
+        // A defender in the shooting lane gets one go at the block. Arms up
+        // (a human holding Shoot) covers more space and nearly always gets a hand to it.
         b.tried |= 1 << p.id;
-        if (s.rng() > BLOCK_CHANCE * (b.big ? 0.6 : 1)) continue;
+        if (s.rng() > (p.blocking ? 0.9 : BLOCK_CHANCE) * (b.big ? 0.6 : 1)) continue;
+        s.stats.blocks[p.team]++;
         b.vx = -b.vx * 0.25 + (s.rng() - 0.5) * 4;
         b.vz = b.vz * 0.25 + (s.rng() - 0.5) * 6;
         b.vy = 1.5 + s.rng() * 3;
@@ -738,6 +749,7 @@ export function step(s, dt, input = NO_INPUT) {
   }
 
   const b = s.ball;
+  s.passTarget = null;
   teamContext(s);
   updateControl(s, input);
   b.noCatchT = Math.max(0, b.noCatchT - dt);
@@ -751,6 +763,7 @@ export function step(s, dt, input = NO_INPUT) {
     p.react = Math.max(0, p.react - dt);
     p.cool = Math.max(0, p.cool - dt);
     if (p.hasBall && !p.dribbling) p.holdT += dt;
+    if (p.id !== s.ctrl) p.blocking = false;
 
     let mx = 0;
     let mz = 0;

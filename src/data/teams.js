@@ -1,12 +1,14 @@
 // The two finalists. This is the only file you need to edit to change kits,
-// shirt numbers or ratings.
+// players or ratings.
 //
-// Players are shirt numbers and positions only. Real athletes' names are left
-// out on purpose (see "Names and branding" in the README) - add a `name` field
-// per player if you want one shown.
+// Names and shirt numbers are from each country's 2016 Olympic squad list on
+// Wikipedia ("Handball at the 2016 Summer Olympics - Men's team rosters").
+// One player was picked per position; this is NOT a record of who started the
+// final. Faces and likenesses are not used: every player is drawn as the same
+// plain figure. See "Names and branding" in the README.
 //
 // pos: GK keeper, LW/RW wings, LB/CB/RB backs, PV pivot.
-// spd: running speed multiplier. sht: shooting accuracy from 0 to 1.
+// spd: running speed multiplier. sht: shooting accuracy from 0 to 1 (game values, made up).
 
 export const TEAMS = [
   {
@@ -17,13 +19,13 @@ export const TEAMS = [
     keeper: '#f2c230',
     radar: '#ff5468',
     players: [
-      { num: 1, pos: 'GK', spd: 1.0, sht: 0.4 },
-      { num: 7, pos: 'LW', spd: 1.06, sht: 0.74 },
-      { num: 24, pos: 'LB', spd: 1.0, sht: 0.92 },
-      { num: 4, pos: 'CB', spd: 1.02, sht: 0.8 },
-      { num: 11, pos: 'RB', spd: 1.0, sht: 0.82 },
-      { num: 19, pos: 'RW', spd: 1.06, sht: 0.8 },
-      { num: 22, pos: 'PV', spd: 0.96, sht: 0.76 },
+      { num: 1, pos: 'GK', name: 'Niklas Landin Jacobsen', spd: 1.0, sht: 0.4 },
+      { num: 6, pos: 'LW', name: 'Casper Ulrich Mortensen', spd: 1.06, sht: 0.76 },
+      { num: 24, pos: 'LB', name: 'Mikkel Hansen', spd: 1.0, sht: 0.92 },
+      { num: 5, pos: 'CB', name: 'Mads Mensah Larsen', spd: 1.02, sht: 0.8 },
+      { num: 22, pos: 'RB', name: 'Kasper Søndergaard', spd: 1.0, sht: 0.82 },
+      { num: 17, pos: 'RW', name: 'Lasse Svan Hansen', spd: 1.06, sht: 0.8 },
+      { num: 23, pos: 'PV', name: 'Henrik Toft Hansen', spd: 0.96, sht: 0.76 },
     ],
   },
   {
@@ -34,13 +36,13 @@ export const TEAMS = [
     keeper: '#1e1e24',
     radar: '#5b8cff',
     players: [
-      { num: 16, pos: 'GK', spd: 1.0, sht: 0.4 },
-      { num: 21, pos: 'LW', spd: 1.06, sht: 0.78 },
-      { num: 13, pos: 'LB', spd: 1.0, sht: 0.9 },
-      { num: 5, pos: 'CB', spd: 1.02, sht: 0.8 },
-      { num: 8, pos: 'RB', spd: 1.0, sht: 0.84 },
-      { num: 19, pos: 'RW', spd: 1.06, sht: 0.78 },
-      { num: 2, pos: 'PV', spd: 0.96, sht: 0.78 },
+      { num: 16, pos: 'GK', name: 'Thierry Omeyer', spd: 1.0, sht: 0.4 },
+      { num: 21, pos: 'LW', name: 'Michaël Guigou', spd: 1.06, sht: 0.78 },
+      { num: 8, pos: 'LB', name: 'Daniel Narcisse', spd: 1.0, sht: 0.86 },
+      { num: 13, pos: 'CB', name: 'Nikola Karabatić', spd: 1.02, sht: 0.9 },
+      { num: 28, pos: 'RB', name: 'Valentin Porte', spd: 1.0, sht: 0.84 },
+      { num: 19, pos: 'RW', name: 'Luc Abalo', spd: 1.06, sht: 0.8 },
+      { num: 20, pos: 'PV', name: 'Cédric Sorhaindo', spd: 0.96, sht: 0.78 },
     ],
   },
 ];
