@@ -64,7 +64,8 @@ src/
     core.js     court size, rule constants, small maths helpers
     match.js    state, rules, ball physics, player control
     ai.js       team shape and what a computer-controlled ball carrier does
-  render/     the 3D view: arena, players, ball, cameras, canvas-painted textures
+  render/     the 3D view: arena, ball, cameras, canvas-painted textures
+    figure.js   the jointed player figure and its animation (poses blended in code, no animation files)
   ui/hud.js   scoreboard, radar, step and time indicators
   data/teams.js   kits, shirt numbers, ratings
   input.js    keyboard and on-screen touch controls
@@ -91,7 +92,7 @@ This is a fan project with no connection to the players, the federations or the 
 4. Shot types: bounce shot, lob, spin shot from the wing; a diving goalkeeper.
 5. Smarter attack: crossing runs, pivot screens, fast breaks; 5-1 and 3-2-1 defences.
 6. Extra time and a penalty shoot-out when the final is level.
-7. Player models and animation in place of the block figures.
+7. Skinned character models and motion-captured animation in place of the code-driven figures.
 
 ## Credits
 
