@@ -1,0 +1,19 @@
+{
+  "name": "final-seven",
+  "version": "0.1.0",
+  "description": "A 3D browser handball game: Denmark vs France, the 2016 men's final.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node scripts/simtest.mjs"
+  },
+  "dependencies": {
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "vite": "^6.4.6"
+  }
+}
