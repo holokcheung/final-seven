@@ -239,6 +239,8 @@ export function createView(canvas, teams) {
     forward: () => forward,
     /** Resolves true once the 3D player models are in, false if they could not be loaded. */
     ready,
+    /** The drawn figure for a player id (for checking animation while developing). */
+    figure: (id) => figures[id],
     cameraName: () => CAMERAS[mode],
     /** Pin the camera somewhere (or pass null to hand it back to the normal cameras). */
     setCloseUp(shot) {

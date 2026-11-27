@@ -69,6 +69,7 @@ export function createMatch({ teams, seed = 1, humanTeam = 0, difficulty = 1, ha
         hasBall: false, holdT: 0, minHold: 0.6, driveSide: 1, lastPasser: -1,
         steps: 0, dribbling: false, dribbled: false, // carrying rules, see core.js
         blocking: false, // arms up to block a shot (human defender holding Shoot)
+        throwKind: 'pass', // what the last throw was: 'pass' | 'shot' | 'power' (for the animation)
         stun: 0, throwT: 0, jumpT: 0, aiT: 0, react: 0, cool: 0, stam: 1, sprinting: false,
       });
       if (pl.pos === 'GK') s.teams[ti].gk = id;
@@ -229,6 +230,7 @@ function doPass(s, p, m) {
   b.noCatchId = p.id;
   b.noCatchT = 0.3;
   p.throwT = 0.28;
+  p.throwKind = 'pass';
   s.stats.passes[p.team]++;
   p.face = Math.atan2(tz - p.z, tx - p.x);
   emit(s, 'pass');
@@ -257,6 +259,7 @@ function doShot(s, p, aimZ, aimY, power, errMul, big = false) {
   b.noCatchId = p.id;
   b.noCatchT = 0.3;
   p.throwT = big ? 0.5 : 0.35;
+  p.throwKind = big ? 'power' : 'shot';
   p.jumpT = big ? 0.3 : 0.5; // a power shot is released at the top of the jump
   if (big) {
     p.stam = Math.max(0, p.stam - POWER_COST);

@@ -54,6 +54,16 @@ The radar shows all fourteen players. The yellow ring is you; the white ring is 
 - **Passive play.** A team that keeps the ball too long without shooting loses it.
 - **Two halves, change of ends**, throw-off after every goal, throw-ins and goalkeeper throws.
 
+## How the players move
+
+Running, shuffling, the guard stance and the goal celebration are recorded animation clips. The handball moves are posed in code on top of them:
+
+- **Catch:** both hands go out to meet a pass as it arrives, and the ball is held in two hands when standing.
+- **Pass:** a quick push with the throwing arm while the legs keep running.
+- **Jump shot:** the arm draws back as the shot charges, comes over the top in the air with the knee driven up, and he sinks into his knees on landing.
+- **Keeper:** reads where the shot is heading. High shots get a hand (or both) and a jump, low ones a leg kicked out along the floor.
+- **Defence:** hands up in the wall, hands on an attacker who gets close, arms straight up to block.
+
 Not in yet: fouls and free throws for contact, 7 m penalties, suspensions, corner throws, substitutions, extra time.
 
 ## How the code is laid out
@@ -94,7 +104,7 @@ This is a fan project with no connection to the players, the federations or the 
 4. Shot types: bounce shot, lob, spin shot from the wing; a diving goalkeeper.
 5. Smarter attack: crossing runs, pivot screens, fast breaks; 5-1 and 3-2-1 defences.
 6. Extra time and a penalty shoot-out when the final is level.
-7. Handball-specific animation: a proper jump shot, a diving keeper, a two-handed catch.
+7. Recorded handball animation in place of the moves that are posed in code; a diving keeper; fakes and spin shots.
 
 ## Credits
 
